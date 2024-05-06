@@ -1,1 +1,74 @@
-jsjsjjsjsjsjdjsjsj
+# Роль 
+client
+ 
+# IP сервера OpenVPN 
+remote 123.123.123.123
+ 
+# Порт сервера OpenVPN, как в конфигурации сервера
+port 1194 
+ 
+# Интерфейс
+dev tun
+ 
+# Протокол OpenVPN, как на сервере
+;proto tcp
+proto udp
+ 
+# Имя хоста, IP и порт сервера 
+ 
+;remote my–server–1 1194
+;remote my–server–2 1194
+ 
+# Случайный выбор хостов. Если не указано, берется по порядку
+;remote–random
+ 
+# Преобразование имени хоста 
+# (в случае непостоянного подключения к интернету)
+resolv-retry infinite
+ 
+# Привязка к локальному порту
+nobind
+ 
+# Шлюз по умолчанию 
+redirect-gateway def1 bypass-dhcp
+ 
+# При падении туннеля не выключать интерфейсы, не перечитывать ключи
+persist-key
+persist-tun
+ 
+# Настройка HTTP прокси при подключении OpenVPN серверу
+;http–proxy–retry # retry on connection failures
+;http–proxy [proxy server] [proxy port #]
+ 
+# Отключение предупреждений о дублировании пакетов
+;mute–replay–warnings
+ 
+# Дополнительная защита
+remote-cert-tls server 
+ 
+# Ключ HMAC
+key-direction 1
+ 
+# Шифрование
+cipher AES-256-CBC
+ 
+# Сжатие. Если на сервере отключено, не включается
+#comp–lzo
+ 
+# Вербальность журнала
+verb 3
+ 
+# Сертификаты
+ 
+<ca>
+*Вставьте содержимое файла /etc/openvpn/certs/ca.crt*
+</ca>
+<cert>
+*Вставьте содержимое файла /etc/openvpn/easy-rsa/pki/issued/client1.crt*
+</cert>
+<key>
+*Вставьте содержимое файла /etc/openvpn/easy-rsa/pki/private/client1.key*
+</key>
+<tls-auth>
+*Вставьте содержимое файла /etc/openvpn/certs/ta.key*
+</tls-auth>
