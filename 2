@@ -1,107 +1,179 @@
------BEGIN CERTIFICATE-----
-MIIDSzCCAjOgAwIBAgIUHMaVVDutdd6ZTvsUE247LicQeHEwDQYJKoZIhvcNAQEL
-BQAwFjEUMBIGA1UEAwwLRWFzeS1SU0EgQ0EwHhcNMjQwNTA0MTYwMTE4WhcNMzQw
-NTAyMTYwMTE4WjAWMRQwEgYDVQQDDAtFYXN5LVJTQSBDQTCCASIwDQYJKoZIhvcN
-AQEBBQADggEPADCCAQoCggEBAM6UJggCtvZUeZrN1z8uZboOYnuR7FK+Uiqsqg8L
-Sex/uWILwXhNxMR9V1iR01hLfOMDsWR7ITKRMwrN7Zzlb+Ay6f0ybj42t2m9IK1K
-C+Ri/MNSkM6wxYTDNDk246SH8S+JVKysEMPx896mbnqDyaxezJH18grRQHGPXy4O
-y4eLXcdbVThCldq/Z0h2HcsGi5MZKf2i1rjjfR9VSTE169SYjc+0xKjn3EF1ASpg
-CVNGhERsUC7BfADRE5pWLTilEAjCOyyk7MzWXpQulzDl+ObCz0+6yT/6zUMORYMt
-40KrSoyuJApZSw+RWQqGNtXgi/Gam5LXEnmlGzEk0DSxylcCAwEAAaOBkDCBjTAd
-BgNVHQ4EFgQUKlSil/J/fqar+rCOYUIWLmwT4vYwUQYDVR0jBEowSIAUKlSil/J/
-fqar+rCOYUIWLmwT4vahGqQYMBYxFDASBgNVBAMMC0Vhc3ktUlNBIENBghQcxpVU
-O6113plO+xQTbjsuJxB4cTAMBgNVHRMEBTADAQH/MAsGA1UdDwQEAwIBBjANBgkq
-hkiG9w0BAQsFAAOCAQEAyjViL6lnSB1HYyUoA/pWlHDc3v3W2U2DXmzQWhoWZQ2T
-B0NBKifPF0kYnLt5sStKEZNO41tI5MFadXDQEX5FgfAyHnS6siC5BjmQPM+m3ifq
-Avm57th3SYtlkE+paB1ZjNItcBOlitpsq8k+tE29ih/gQYR8xDIwFtd6ycDDA3j7
-z5ooU0b3xi4Z/2Dfab8yRXiw7gswesLUaIlIOfkSdo7YQbyk0P1xa1U5X8tnu/mg
-8bjNkqzWBhH6PxAdZZ1dFFz5gZPs1uGMbK6tiQo96SFbBSScchBeKUEP1FkjR07F
-d6xcnnO0RiKugLNXDVyJ0UBu/9BaA+G9t6B4GWPlIQ==
------END CERTIFICATE-----
 
-
-
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+# Порт для OpenVPN
+port 1194
+ 
+# Протокол, который использует OpenVPN
+;proto tcp
+proto udp
+ 
+# Интерфейс
+;dev tap
+dev tun
+ 
+# Ключи
+ 
+# Сертификат CA
+ca /etc/openvpn/certs/ca.crt
+# Сертификат сервера
+cert /etc/openvpn/certs/server.crt
+# Приватный ключ сервера
+key /etc/openvpn/certs/server.key #не распространяется и хранится в секрете
+ 
+# параметры Diffie Hellman
+dh /etc/openvpn/certs/dh2048.pem
+ 
+# Создание виртуальной сети и ее параметры
+ 
+# IP и маска подсети
+server 10.8.0.0 255.255.255.0
+ 
+# После перезапуска сервера клиенту будет выдан прежний IP
+ifconfig-pool-persist /etc/openvpn/ipp.txt
+ 
+# Установка шлюза по умолчанию
+push "redirect–gateway def1 bypass–dhcp"
+ 
+# Разрешить использовать нескольким клиентами одну и ту же пару ключей
+# не рекомендуется использовать, закомментирована
+;duplicate–cn
+ 
+# Пинговать удаленный узел с интервалом в 10 секунд
+# Если узел не отвечает в течение 120 секунд, то будет выполнена попытка повторного подключения к клиенту
+keepalive 10 120
+ 
+# Защита от DoS–атак портов UDP с помощью HMAC 
+remote-cert-tls client
+tls-auth /etc/openvpn/certs/ta.key 0 # файл хранится в секрете
+ 
+# Криптографические шифры
+cipher AES-256-CBC #для клиентов нужно указывать такой же
+ 
+# Сжатие и отправка настроек клиенту
+;compress lz4–v2
+;push "compress lz4–v2"
+ 
+# Максимальное число одновременных подключений
+;max–clients 100
+ 
+# Понижение привилегий демона OpenVPN
+# после запуска
+# Не использовать для Windows
+;user nobody
+;group nobody
+ 
+# При падении туннеля не выключать интерфейсы, не перечитывать ключи
+persist-key
+persist-tun
+ 
+# Лог текущих соединений
+# Каждую минуту обрезается и перезаписываться
+status openvpn–status.log
+ 
+# Логи syslog
+# Используется только один. Раскомментировать необходимый
+ 
+# перезаписывать файл журнала при каждом запуске OpenVPN
+;log openvpn.log
+ 
+# дополнять журнал
+;log–append openvpn.log
+ 
+# Уровень вербальности
 #
-# 2048 bit OpenVPN static key
-#
------BEGIN OpenVPN Static key V1-----
-9955e0f2f3bc41dff5063f2295727da8
-c0556b29db539491822d99161d52f770
-30f59abbed89580ccd29bc2876fc695c
-cc68c0f1cebff490d40e6a28c40dc331
-9c29a50b1f2bcbf4ed43e0929b4fdcf3
-814a0f88cfb8f99c03b30c7a2556efdf
-7d97250be2280ec0934510d13d8bb6f3
-da06da855d3b2d2a7a93b8bef8775010
-1ade9299cc6ac127d363f5b24678c6aa
-bc3483acca48fe1c2bf699ef0861ff13
-17bae5cac9e36d3aac90ca87636955d2
-2312f4da82c91cd69170d08a13a017fc
-a0bf8b1cc114c965f28615340ed60297
-fa4482c89ad7bed487e81a4e07681f10
-50126606ef932616dff28337b41b3057
-02b04e2f711973abe185d0ca0a3a9f16
------END OpenVPN Static key V1-----
-
-
-
-
------BEGIN CERTIFICATE-----
-MIIDSzCCAjOgAwIBAgIQZM4qPqIIUeOaJOl3Eu99NDANBgkqhkiG9w0BAQsFADAR
-MQ8wDQYDVQQDDAZzZXJ2ZXIwHhcNMjQwNTE5MTQzMTE1WhcNMjYwODIyMTQzMTE1
-WjASMRAwDgYDVQQDDAdjbGllbnQyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB
-CgKCAQEAmpb3S+oxiSxqGucDL1eh8pfcPMIlDIjBPXT6kNZBo7hl1e1BNMBUSndf
-HqwNAvGChb8U4zbS9n7IF+4mRyuRjTYWdsG/HbDZosm0FfvGd1fnujHMmYuBvkYO
-74qeDNj6mf/tqO9arx4CDtKiubRTp+AObeNWVmO13+XTe7wbWK3yIjff4d+ob2lB
-3DEBuEIYQMOnNYHR7jXWAopTcrLCEIOEob1pVNQAg4JjBzSw8mCmniWS1HLWNvc8
-TgU9Ywr5OSITkIyQgsD6qo9zy1V0gaPv754rjOzTjeZPbbxQCWTjYbETsbOpH7aQ
-WH8yPmweVoT9KRAnqUJHIZurVC6PtwIDAQABo4GdMIGaMAkGA1UdEwQCMAAwHQYD
-VR0OBBYEFBgOiw3NERRKZL4RX5+UGP2P1+9aMEwGA1UdIwRFMEOAFDcLzo9uwhK8
-yIgy/jWDgabvaXMgoRWkEzARMQ8wDQYDVQQDDAZzZXJ2ZXKCFGSoGIU9i32UWHdf
-LvaUJkLUMAvxMBMGA1UdJQQMMAoGCCsGAQUFBwMCMAsGA1UdDwQEAwIHgDANBgkq
-hkiG9w0BAQsFAAOCAQEATbeQHSyOy9qyq189cP1NZlZlWumWwcFXQnPNEUgWsnIu
-092ent+dd6UsgObsCG+CxNCUhl+dnUvL2IuL7CXx4XWu+miI7WX3umysdwh7MHSF
-YcA8CM50tXCR/p0kxktcJm4TZtJ/V75/AlQGy1y2HwjoXLast3CgGg66xH6ytWA1
-3RzOomicvQjWf703krS8up4aiPX9GNk9PI8YhYyRWK0gtUgwAHq6s5tZgNRh/scC
-Vl9HpYfOpdX5VzWYINa4+MnZFKE/PSQi1tH+34L5RR8CjoK0xREuuFJRVIs28Gqe
-Mr4VHuKe4un4Zmu1n+aqBSOsVIYHyVey3wjr4qTnwg==
------END CERTIFICATE-----
-
-
-
-
-
-
-
-
------BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCalvdL6jGJLGoa
-5wMvV6Hyl9w8wiUMiME9dPqQ1kGjuGXV7UE0wFRKd18erA0C8YKFvxTjNtL2fsgX
-7iZHK5GNNhZ2wb8dsNmiybQV+8Z3V+e6McyZi4G+Rg7vip4M2PqZ/+2o71qvHgIO
-0qK5tFOn4A5t41ZWY7Xf5dN7vBtYrfIiN9/h36hvaUHcMQG4QhhAw6c1gdHuNdYC
-ilNyssIQg4ShvWlU1ACDgmMHNLDyYKaeJZLUctY29zxOBT1jCvk5IhOQjJCCwPqq
-j3PLVXSBo+/vniuM7NON5k9tvFAJZONhsROxs6kftpBYfzI+bB5WhP0pECepQkch
-m6tULo+3AgMBAAECggEAHASckY/Cpp/8IyAXfa8eVP+dFQ4C9QCcNW1MNJAAmZHE
-Mz+q/8qT/GMiREbenNf01hTJzlyTY8WasmuhWGjXGobhD2kSIGl7KHvyPcHCOMMf
-5qk78eBNBZVhA51WA/IXiW3PPz0SbIa9zL30bD/4oYaEVvpLHaE4x3m6GMUBF9M2
-4LdNh49cp6h78rpr5qGY3+bdxjNrJ8Zg+fplWwn/cULBXSM/tuLHGLhOykxwcVcs
-N1euxlhdtflR1OYfZrSK3Vo7uf7IMsQiaf4A5PyJ+sjMN29SS5ueMO+nGbB4LT4l
-urx7WCnKnkmhXkVX5MLUnE4Nb9sTBQSkmdUGew968QKBgQDH1IajaR17PItpisoZ
-7BeCSwSA9dHYxVIN0nMMNlZZKxANumnRHkpSEGMcAXgi+ZV0OYTZivvNlbULHU+e
-Yjnce9sgKKgZbml7z9seRWRoFumYvy38t5Ahy2lGstrWubdm7Ns3qrxIpn68xSon
-jEoj9tHLcKVBvfStDQX06mHyxQKBgQDGCwFR4FIDUmUS1AuCb2pZPGa0g9qIHOqp
-nmju7Q/YVqPmokJgmtUSgcpqGMMtP8u5QdgndmYXn4McwPuH4ZEnY3dKjxtgaoBV
-YnnSVWrtp5NEFrbshKDkAhJOOrIw0KP7bKQSU1LfKDf2lC3QEiejaCJeCMELw2Uw
-P2VinZGwSwKBgB6j/tUVrBiWawYO6vhYlC49VH51suybLP7DkzJ/LnRTvw1r1Qfk
-rh6xNpE3xHUQchM1MqKsxfl7CByhLPErPJYLQ8lFkqj7nh8G+yFEIKY5RS5Pujxy
-5R3Zc9YMXLPqHC4jCWYavu4g4XQOg202/LNRCFA6gIx5FQhn487vFX/FAoGAJN6d
-o0mY2yd2y7eQYPsvGGfnUwoNIDQJ+AQW0wxtW8BdiS2CIAwTSPvC3Fe51m2/FsFM
-ZaRkQ1eeCDdhXJ3A8U1SQx47YYrSU5MezOq8GnyNLSrxaT0T2v8Lu2awD+h37vH9
-5a9/iS4qpQxXLxqCKKjVZR5KGk+JQh87V82v9tsCgYEArCHFYO0G/yzyzVfbrNsB
-k8e2KujZgVn15g+o8HPrS8/kQOF+KIBKzQVZ5MyQA9FY8nE+UctdfvFA5/Bl8CEs
-Axag76fEHKC4cpO/GEmm4p5NLo7icMAgq9yey2QyZsvmhB6T2pG+10TtXVCqAzSd
-vPo+ytGrwpgejmLFJfpsVvw=
------END PRIVATE KEY-----
-
-
-
+# 0 тихий, кроме фатальных ошибок
+# 4 подходит для обычного использования
+# 5 и 6 помогают в отладке при решении проблем с подключением
+# 9 крайне вербальный
+verb 4
+ 
+# Предупреждение клиента о перезапуске сервера
+explicit-exit-notify 1
