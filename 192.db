@@ -1,0 +1,11 @@
+$TTL	604800
+@	IN	SOA	vpn.ru. root.vpn.ru. (
+			      1		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+	IN	NS	vpn.ru.
+10	IN	PTR	vpn.ru.
+10	IN	PTR	srv-vpn.
